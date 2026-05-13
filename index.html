@@ -3,436 +3,520 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<meta name="theme-color" content="#0f0f13"/>
-<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#080810"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="บัญชีรายจ่าย"/>
-<title>บัญชีรายรับ-รายจ่าย</title>
-<script>
-const manifestData={name:"บัญชีรายรับ-รายจ่าย",short_name:"บัญชี",start_url:".",display:"standalone",background_color:"#0f0f13",theme_color:"#7c6aff",icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c6aff'/><text y='.9em' font-size='75' x='50%' dominant-baseline='middle' text-anchor='middle'>💰</text></svg>",sizes:"512x512",type:"image/svg+xml"}]};
-const blob=new Blob([JSON.stringify(manifestData)],{type:"application/json"});
-const lnk=document.createElement("link");lnk.rel="manifest";lnk.href=URL.createObjectURL(blob);document.head.appendChild(lnk);
-</script>
+<meta name="apple-mobile-web-app-title" content="FinTrack"/>
+<title>FinTrack — บัญชีรายรับรายจ่าย</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Sarabun','Noto Sans Thai',sans-serif;background:#0f0f13;color:#e8e6f0;min-height:100vh;overscroll-behavior:none}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#3a3a52;border-radius:4px}
-.card{background:#17171f;border:1px solid #2a2a38;border-radius:16px}
-.inp{background:#0f0f13;border:1.5px solid #2a2a38;border-radius:10px;color:#e8e6f0;font-family:inherit;font-size:16px;padding:12px 14px;width:100%;outline:none;transition:border .2s}
-.inp:focus{border-color:#7c6aff}
-.btn-primary{background:linear-gradient(135deg,#7c6aff,#a855f7);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;padding:14px;width:100%;transition:opacity .2s,transform .1s}
+:root{
+  --bg:#080810;--bg2:#0e0e1a;--bg3:#14141f;--bg4:#1a1a2e;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#f5c518;--gold2:#e8a012;
+  --green:#00d4aa;--green2:#00a884;
+  --red:#ff4d6d;--red2:#c9374f;
+  --purple:#7c6aff;--purple2:#5b4de0;
+  --blue:#4facfe;--blue2:#0066cc;
+  --text:#f0eeff;--text2:#9990c0;--text3:#5a5478;
+  --radius:20px;--radius2:14px;--radius3:10px;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+/* Scrollbar */
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ffffff20;border-radius:4px}
+/* Glass card */
+.glass{background:linear-gradient(135deg,#ffffff0a,#ffffff04);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(20px)}
+.glass2{background:linear-gradient(135deg,#ffffff06,#ffffff02);border:1px solid var(--border);border-radius:var(--radius2)}
+/* Buttons */
+.btn{border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--purple),#a855f7);border-radius:var(--radius2);color:#fff;font-size:16px;font-weight:700;padding:16px;width:100%;letter-spacing:.5px}
 .btn-primary:active{transform:scale(.97);opacity:.9}
-.tab-btn{background:none;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.type-btn{border-radius:10px;font-size:14px;font-weight:600;padding:10px 20px;transition:all .2s}
-.cat-pill{background:#1e1e2a;border:1.5px solid #2a2a38;border-radius:20px;cursor:pointer;font-size:13px;padding:8px 13px;transition:all .2s;white-space:nowrap;font-family:inherit}
-.cat-pill.ai{background:#0d2e1a;border-color:#22c55e;color:#22c55e}
-.cat-pill.ae{background:#2a1020;border-color:#f43f5e;color:#f43f5e}
-.txn-row{align-items:center;background:#1a1a24;border:1px solid #242432;border-radius:12px;display:flex;gap:12px;padding:14px}
-.icon-circle{align-items:center;border-radius:50%;display:flex;flex-shrink:0;font-size:20px;height:44px;justify-content:center;width:44px}
-.progress-bar{background:#1e1e2a;border-radius:8px;height:8px;overflow:hidden}
-.progress-fill{border-radius:8px;height:100%;transition:width .5s ease}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:pointer}
-.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#13131b;border-top:1px solid #2a2a38;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;cursor:pointer;font-size:11px;color:#4a4a6a;transition:color .2s;border:none;background:none;font-family:inherit}
-.nav-item.active{color:#7c6aff}
-.nav-icon{font-size:22px}
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:#17171f;border:1px solid #3a2a6a;border-radius:12px;padding:10px 20px;font-size:13px;color:#a78bfa;z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
-#toast.show{transform:translateX(-50%) translateY(0)}
-/* Slip Scanner */
-.slip-zone{border:2px dashed #3a2a6a;border-radius:16px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s;background:#0d0d14;position:relative}
-.slip-zone:hover,.slip-zone.drag{border-color:#7c6aff;background:#12101e}
-.slip-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.slip-preview{width:100%;border-radius:12px;max-height:200px;object-fit:contain;background:#0a0a10}
-.ai-result{background:#0d1a10;border:1.5px solid #22c55e33;border-radius:12px;padding:16px;margin-top:12px}
-.ai-result.err{background:#1a0d0d;border-color:#f43f5e33}
-.spinner{width:28px;height:28px;border:3px solid #2a2a3a;border-top-color:#7c6aff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-.confirm-btn{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;padding:12px;width:100%;margin-top:10px;transition:opacity .2s}
-.confirm-btn:active{opacity:.8}
+.btn-ghost{background:none;border:1px solid var(--border2);border-radius:var(--radius2);color:var(--text2);font-size:14px;padding:11px;width:100%}
+.btn-icon{background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);cursor:pointer;font-size:18px;padding:7px 12px;font-family:inherit}
+/* Inputs */
+.inp{background:#ffffff08;border:1.5px solid var(--border2);border-radius:var(--radius3);color:var(--text);font-family:inherit;font-size:16px;padding:13px 16px;width:100%;outline:none;transition:all .2s}
+.inp:focus{border-color:var(--purple);background:#7c6aff12}
+/* Category pills */
+.pill{background:#ffffff08;border:1.5px solid var(--border);border-radius:30px;cursor:pointer;font-size:13px;padding:8px 14px;font-family:inherit;color:var(--text2);transition:all .2s}
+.pill.pi{background:#00d4aa15;border-color:var(--green);color:var(--green)}
+.pill.pe{background:#ff4d6d15;border-color:var(--red);color:var(--red)}
+/* Transaction */
+.txn{align-items:center;background:#ffffff05;border:1px solid var(--border);border-radius:var(--radius2);display:flex;gap:14px;padding:16px;transition:all .2s;margin-bottom:10px}
+.txn:hover{background:#ffffff09;border-color:var(--border2)}
+.avatar{align-items:center;border-radius:14px;display:flex;flex-shrink:0;font-size:22px;height:48px;justify-content:center;width:48px}
+/* Progress */
+.pbar{background:#ffffff0a;border-radius:99px;height:8px;overflow:hidden}
+.pfill{border-radius:99px;height:100%;transition:width .8s cubic-bezier(.4,0,.2,1)}
+/* Nav */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0c0c18ee;border-top:1px solid var(--border);backdrop-filter:blur(30px);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:99}
+.ni{flex:1;align-items:center;display:flex;flex-direction:column;gap:4px;padding:10px 0;cursor:pointer;font-size:10px;color:var(--text3);border:none;background:none;font-family:inherit;transition:all .2s;position:relative}
+.ni.on{color:var(--purple)}
+.ni.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:2px;background:var(--purple);border-radius:0 0 4px 4px}
+.ni-ic{font-size:22px}
+/* Toast */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:12px 24px;font-size:14px;color:var(--text);z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px #00000060}
+#toast.on{transform:translateX(-50%) translateY(0)}
+/* Spinner */
+.spin{width:32px;height:32px;border:3px solid #ffffff15;border-top-color:var(--purple);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* SVG Donut */
+.donut{transform:rotate(-90deg);transform-origin:center}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease both}
+/* Gradient text */
+.grad-text{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.grad-green{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 </style>
 </head>
 <body>
 <div id="toast"></div>
-<div id="app" style="max-width:430px;margin:0 auto;padding:0 0 90px"></div>
-<nav class="nav-bar">
-  <button class="nav-item active" id="nav-overview" onclick="setTab('overview')"><span class="nav-icon">📊</span>สรุป</button>
-  <button class="nav-item" id="nav-history" onclick="setTab('history')"><span class="nav-icon">📋</span>รายการ</button>
-  <button class="nav-item" id="nav-slip" onclick="setTab('slip')"><span class="nav-icon">📸</span>สแกนสลิป</button>
-  <button class="nav-item" id="nav-add" onclick="setTab('add')"><span class="nav-icon">➕</span>เพิ่ม</button>
+<div id="app" style="max-width:430px;margin:0 auto;padding-bottom:90px"></div>
+<nav class="nav">
+  <button class="ni on" data-tab="overview"><span class="ni-ic">📊</span>สรุป</button>
+  <button class="ni" data-tab="history"><span class="ni-ic">📋</span>รายการ</button>
+  <button class="ni" data-tab="slip"><span class="ni-ic">📸</span>สแกน</button>
+  <button class="ni" data-tab="add"><span class="ni-ic">✦</span>เพิ่ม</button>
+  <button class="ni" data-tab="settings"><span class="ni-ic">⚙️</span>ตั้งค่า</button>
 </nav>
-
 <script>
-// ── CATEGORIES ──────────────────────────────────────────
+const PROXY="https://examples-hello-world.ohcha2303.deno.net";
+const SK="fintrack_v1";
+const today=new Date().toISOString().split("T")[0];
+const MONTHS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const CATS={
   income:[
-    {id:"salary",label:"เงินเดือน",icon:"💼"},
-    {id:"freelance",label:"ฟรีแลนซ์",icon:"💻"},
-    {id:"investment",label:"การลงทุน",icon:"📈"},
-    {id:"other_in",label:"อื่นๆ",icon:"✨"},
+    {id:"salary",label:"เงินเดือน",icon:"💼",color:"#00d4aa"},
+    {id:"freelance",label:"ฟรีแลนซ์",icon:"💻",color:"#4facfe"},
+    {id:"investment",label:"การลงทุน",icon:"📈",color:"#f5c518"},
+    {id:"bonus",label:"โบนัส",icon:"🎁",color:"#a855f7"},
+    {id:"other_in",label:"อื่นๆ",icon:"✨",color:"#7c6aff"},
   ],
   expense:[
-    {id:"food",label:"อาหาร",icon:"🍜"},
-    {id:"grocery",label:"ของกิน",icon:"🛒"},
-    {id:"snack",label:"ของกินเล่น",icon:"🍿"},
-    {id:"transport",label:"เดินทาง",icon:"🚗"},
-    {id:"shopping",label:"ช้อปปิ้ง",icon:"🛍"},
-    {id:"health",label:"สุขภาพ",icon:"💊"},
-    {id:"insurance",label:"ประกัน",icon:"🛡️"},
-    {id:"invest",label:"ลงทุน",icon:"📊"},
-    {id:"entertainment",label:"บันเทิง",icon:"🎬"},
-    {id:"utilities",label:"ค่าสาธารณูปโภค",icon:"💡"},
-    {id:"other_out",label:"อื่นๆ",icon:"📦"},
+    {id:"food",label:"อาหาร",icon:"🍜",color:"#ff4d6d"},
+    {id:"grocery",label:"ของกิน",icon:"🛒",color:"#ff6b35"},
+    {id:"snack",label:"ของกินเล่น",icon:"🍿",color:"#ffa500"},
+    {id:"transport",label:"เดินทาง",icon:"🚗",color:"#4facfe"},
+    {id:"shopping",label:"ช้อปปิ้ง",icon:"🛍",color:"#e040fb"},
+    {id:"health",label:"สุขภาพ",icon:"💊",color:"#00d4aa"},
+    {id:"insurance",label:"ประกัน",icon:"🛡️",color:"#7c6aff"},
+    {id:"invest",label:"ลงทุน",icon:"📊",color:"#f5c518"},
+    {id:"entertainment",label:"บันเทิง",icon:"🎬",color:"#ff4d6d"},
+    {id:"utilities",label:"สาธารณูปโภค",icon:"💡",color:"#ffd700"},
+    {id:"other_out",label:"อื่นๆ",icon:"📦",color:"#9990c0"},
   ]
 };
-const ALL_CATS=[...CATS.income,...CATS.expense];
-const MONTHS_TH=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-const SK="expense_txns_v2";
-const today=new Date().toISOString().split("T")[0];
-
-let txns=[],activeTab="overview",filterMonth=today.slice(0,7),editId=null;
+const ALL=[...CATS.income,...CATS.expense];
+let txns=[],tab="overview",month=today.slice(0,7),editId=null;
 let form={type:"expense",category:"food",amount:"",note:"",date:today};
-// slip state
-let slipState={status:"idle",imgSrc:"",result:null,error:""}; // idle|loading|done|error
+let slip={st:"idle",img:"",result:null,err:""};
 
-function getCat(id){return ALL_CATS.find(c=>c.id===id)||{label:id,icon:"💰"}}
-function money(n){return n.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function fmtDate(iso){return new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})}
-function monthLabel(ym){const[y,m]=ym.split("-").map(Number);return`${MONTHS_TH[m-1]} ${y+543}`}
+const getCat=id=>ALL.find(c=>c.id===id)||{label:id,icon:"💰",color:"#7c6aff"};
+const money=n=>n.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=iso=>new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short"});
+const mlbl=ym=>{const[y,m]=ym.split("-").map(Number);return`${MONTHS[m-1]} ${y+543}`;};
 
-// ── STORAGE ─────────────────────────────────────────────
 function load(){
   try{const d=localStorage.getItem(SK);return d?JSON.parse(d):[
-    {id:1,type:"income",category:"salary",amount:35000,note:"เงินเดือนเดือนนี้",date:today},
+    {id:1,type:"income",category:"salary",amount:35000,note:"เงินเดือน",date:today},
     {id:2,type:"expense",category:"food",amount:450,note:"ข้าวกลางวัน",date:today},
     {id:3,type:"expense",category:"transport",amount:120,note:"รถไฟฟ้า",date:today},
-  ]}catch(e){return[]}
+    {id:4,type:"expense",category:"shopping",amount:890,note:"ซื้อเสื้อผ้า",date:today},
+  ];}catch(e){return[];}
 }
-function save(){
-  try{localStorage.setItem(SK,JSON.stringify(txns));showToast("✅ บันทึกแล้ว")}
-  catch(e){showToast("❌ บันทึกไม่สำเร็จ")}
+function save(){try{localStorage.setItem(SK,JSON.stringify(txns));toast("✅ บันทึกแล้ว");}catch(e){toast("❌ บันทึกไม่สำเร็จ");}}
+
+let toastT;
+function toast(msg,dur=2200){
+  const el=document.getElementById("toast");el.textContent=msg;el.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),dur);
 }
 
-// ── TOAST ───────────────────────────────────────────────
-let toastTimer;
-function showToast(msg,dur=2000){
-  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),dur);
-}
-
-// ── COMPUTED ────────────────────────────────────────────
-function filtered(){return txns.filter(t=>t.date.startsWith(filterMonth)).sort((a,b)=>b.date.localeCompare(a.date))}
-function totals(f){
-  const inc=f.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
-  const exp=f.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
-  return{inc,exp,bal:inc-exp};
-}
-function byCategory(f){
-  const map={};
-  f.filter(t=>t.type==="expense").forEach(t=>{map[t.category]=(map[t.category]||0)+t.amount});
-  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
-}
-
-// ── ACTIONS ─────────────────────────────────────────────
-function setTab(tab){activeTab=tab;render()}
-function changeMonth(d){const[y,m]=filterMonth.split("-").map(Number);const dt=new Date(y,m-1+d,1);filterMonth=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;render()}
-function submitForm(){
-  const amt=parseFloat(form.amount);if(!amt||isNaN(amt))return;
-  if(editId!==null){txns=txns.map(t=>t.id===editId?{...t,...form,amount:amt}:t);editId=null;}
-  else{txns=[...txns,{...form,id:Date.now(),amount:amt}];}
-  form={type:"expense",category:"food",amount:"",note:"",date:today};
-  save();activeTab="history";render();
-}
-function startEdit(id){
-  const t=txns.find(x=>x.id===id);if(!t)return;
-  form={type:t.type,category:t.category,amount:String(t.amount),note:t.note,date:t.date};
-  editId=id;activeTab="add";render();
-}
-function deleteTxn(id){txns=txns.filter(t=>t.id!==id);save();render()}
-function cancelEdit(){editId=null;form={type:"expense",category:"food",amount:"",note:"",date:today};render()}
-function setFF(k,v){form[k]=v}
-
-// ── AI SLIP SCANNER ─────────────────────────────────────
-function onSlipFile(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    slipState={status:"loading",imgSrc:e.target.result,result:null,error:""};
-    render();
-    analyzeSlip(e.target.result);
-  };
-  reader.readAsDataURL(file);
+// Slip scanner
+function onFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
+    slip={st:"loading",img:ev.target.result,result:null,err:""};render();
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas");
+      let w=img.width,h=img.height,max=500;
+      if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+      c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);
+      analyzeSlip(c.toDataURL("image/jpeg",0.6));
+    };img.src=ev.target.result;
+  };fr.readAsDataURL(file);
 }
 
 async function analyzeSlip(dataUrl){
   try{
-    const base64=dataUrl.split(",")[1];
-    const mediaType=dataUrl.split(";")[0].split(":")[1];
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:500,
-        messages:[{
-          role:"user",
-          content:[
-            {type:"image",source:{type:"base64",media_type:mediaType,data:base64}},
-            {type:"text",text:`นี่คือสลิปโอนเงินจากแบงค์ไทย (กสิกร/SCB/กรุงไทย/PromptPay/อื่นๆ)
-กรุณาอ่านข้อมูลและตอบกลับเป็น JSON เท่านั้น ไม่มีข้อความอื่น ไม่มี markdown:
-{
-  "amount": <ตัวเลขยอดโอน ไม่มีเครื่องหมาย>,
-  "date": "<วันที่ในรูปแบบ YYYY-MM-DD>",
-  "note": "<ชื่อผู้รับโอน หรือรายละเอียดการโอน>",
-  "type": "expense",
-  "bank": "<ชื่อแบงค์>",
-  "confidence": <0-100 ความมั่นใจ>
-}
-ถ้าอ่านไม่ได้ให้ตอบ: {"error":"อ่านสลิปไม่ได้"}`}
-          ]
-        }]
-      })
-    });
+    const base64=dataUrl.split(",")[1],mime=dataUrl.split(";")[0].split(":")[1];
+    const res=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({img:base64,mime})});
     const data=await res.json();
-    const text=data.content.map(i=>i.text||"").join("").trim();
-    const clean=text.replace(/```json|```/g,"").trim();
-    const parsed=JSON.parse(clean);
-    if(parsed.error){
-      slipState={...slipState,status:"error",error:parsed.error};
-    } else {
-      slipState={...slipState,status:"done",result:parsed};
-      // pre-fill form
-      form={
-        type:"expense",
-        category:"other_out",
-        amount:String(parsed.amount||""),
-        note:parsed.note||"",
-        date:parsed.date||today
-      };
-    }
-  }catch(e){
-    slipState={...slipState,status:"error",error:"วิเคราะห์ไม่สำเร็จ กรุณาลองใหม่"};
-  }
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||"";
+    const parsed=JSON.parse(raw.replace(/```json|```/g,"").trim());
+    if(parsed.error){slip={...slip,st:"error",err:parsed.error};}
+    else{slip={...slip,st:"done",result:parsed};form={type:"expense",category:"other_out",amount:String(parsed.amount||""),note:parsed.note||"",date:parsed.date||today};}
+  }catch(e){slip={...slip,st:"error",err:"❌ "+e.message};}
   render();
 }
 
-function confirmSlip(){
-  activeTab="add";
-  slipState={status:"idle",imgSrc:"",result:null,error:""};
-  render();
+function changeMonth(d){const[y,m]=month.split("-").map(Number);const dt=new Date(y,m-1+d,1);month=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;render();}
+function submit(){
+  const amt=parseFloat(form.amount);if(!amt||isNaN(amt))return;
+  if(editId!==null){txns=txns.map(t=>t.id===editId?{...t,...form,amount:amt}:t);editId=null;}
+  else{txns=[...txns,{...form,id:Date.now(),amount:amt}];}
+  form={type:"expense",category:"food",amount:"",note:"",date:today};
+  slip={st:"idle",img:"",result:null,err:""};save();tab="history";render();
+}
+function startEdit(id){const t=txns.find(x=>x.id===id);if(!t)return;form={...t,amount:String(t.amount)};editId=id;tab="add";render();}
+function delTxn(id){if(!confirm("ลบรายการนี้?"))return;txns=txns.filter(t=>t.id!==id);save();render();}
+function cancelEdit(){editId=null;form={type:"expense",category:"food",amount:"",note:"",date:today};render();}
+function resetSlip(){slip={st:"idle",img:"",result:null,err:""};render();}
+
+// Donut chart SVG
+function donut(segments,size=120,stroke=18){
+  const r=(size-stroke)/2,cx=size/2,cy=size/2,circ=2*Math.PI*r;
+  let off=0;
+  const paths=segments.map(s=>{
+    const len=circ*s.pct;
+    const p=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-off}" stroke-linecap="round" class="donut"/>`;
+    off+=len;return p;
+  });
+  return`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths.join("")}</svg>`;
 }
 
-function resetSlip(){
-  slipState={status:"idle",imgSrc:"",result:null,error:""};
-  render();
-}
-
-// ── RENDER ──────────────────────────────────────────────
 function render(){
-  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
-  const nb=document.getElementById("nav-"+activeTab);if(nb)nb.classList.add("active");
-
-  const f=filtered();const{inc,exp,bal}=totals(f);
+  document.querySelectorAll(".ni").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  const f=txns.filter(t=>t.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date));
+  const inc=f.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+  const exp=f.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+  const bal=inc-exp;
+  const spPct=inc>0?Math.min(exp/inc*100,100):0;
+  const svPct=inc>0?Math.max((inc-exp)/inc*100,0):0;
   const cats=form.type==="income"?CATS.income:CATS.expense;
 
-  let html=`
-  <div style="padding:24px 20px 0">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  // By category
+  const byCat={};
+  f.filter(t=>t.type==="expense").forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount;});
+  const catArr=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+
+  // Donut segments
+  const segments=catArr.map(([cat,amt])=>({color:getCat(cat).color,pct:exp>0?amt/exp:0}));
+
+  // Monthly bar data (last 6 months)
+  const barData=[];
+  for(let i=5;i>=0;i--){
+    const dt=new Date();dt.setMonth(dt.getMonth()-i);
+    const ym=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+    const mExp=txns.filter(t=>t.date.startsWith(ym)&&t.type==="expense").reduce((s,t)=>s+t.amount,0);
+    const mInc=txns.filter(t=>t.date.startsWith(ym)&&t.type==="income").reduce((s,t)=>s+t.amount,0);
+    barData.push({label:MONTHS[dt.getMonth()],exp:mExp,inc:mInc});
+  }
+  const maxBar=Math.max(...barData.map(d=>Math.max(d.exp,d.inc)),1);
+
+  let h=`<div style="padding:28px 20px 0" class="fade-up">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div style="font-size:12px;color:#6b6b8a;letter-spacing:1px;text-transform:uppercase">บัญชีส่วนตัว</div>
-        <div style="font-size:21px;font-weight:700;margin-top:2px">รายรับ-รายจ่าย</div>
+        <div style="font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:600">FinTrack</div>
+        <div style="font-size:24px;font-weight:800;margin-top:2px;letter-spacing:-.5px">รายรับ-รายจ่าย</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button onclick="changeMonth(-1)" style="background:#1e1e2a;border:1px solid #2a2a38;border-radius:8px;color:#aaa;cursor:pointer;font-size:18px;padding:6px 11px;font-family:inherit">‹</button>
-        <span style="font-size:13px;font-weight:600;min-width:72px;text-align:center">${monthLabel(filterMonth)}</span>
-        <button onclick="changeMonth(1)" style="background:#1e1e2a;border:1px solid #2a2a38;border-radius:8px;color:#aaa;cursor:pointer;font-size:18px;padding:6px 11px;font-family:inherit">›</button>
+        <button id="bPrev" class="btn btn-icon">‹</button>
+        <span style="font-size:13px;font-weight:700;min-width:68px;text-align:center;color:var(--text2)">${mlbl(month)}</span>
+        <button id="bNext" class="btn btn-icon">›</button>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,#1a1530,#201535,#1a2035);border:1px solid #3a2a6a;border-radius:20px;padding:22px 22px 18px;margin-bottom:16px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(124,106,255,.2),transparent 70%);border-radius:50%"></div>
-      <div style="font-size:13px;color:#8b7fc0;margin-bottom:4px">ยอดคงเหลือ</div>
-      <div style="font-size:34px;font-weight:700;color:${bal>=0?"#a78bfa":"#f87171"};letter-spacing:-1px">${bal<0?"-":""}฿${money(Math.abs(bal))}</div>
-      <div style="display:flex;gap:18px;margin-top:16px">
-        <div><div style="font-size:11px;color:#6b6b8a;margin-bottom:2px">รายรับ</div><div style="font-size:15px;font-weight:600;color:#22c55e">+฿${money(inc)}</div></div>
-        <div style="width:1px;background:#2a2a3a"></div>
-        <div><div style="font-size:11px;color:#6b6b8a;margin-bottom:2px">รายจ่าย</div><div style="font-size:15px;font-weight:600;color:#f43f5e">-฿${money(exp)}</div></div>
+
+    <!-- Balance Card -->
+    <div style="background:linear-gradient(135deg,#1a1040 0%,#0d0d24 40%,#0a1628 100%);border:1px solid #ffffff15;border-radius:24px;padding:24px;margin-bottom:8px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,#7c6aff30,transparent 70%);border-radius:50%"></div>
+      <div style="position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;background:radial-gradient(circle,#00d4aa15,transparent 70%);border-radius:50%"></div>
+      <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">ยอดคงเหลือ</div>
+      <div style="font-size:40px;font-weight:800;letter-spacing:-2px;margin-bottom:4px" class="${bal>=0?'grad-text':''}">
+        <span style="${bal<0?'color:var(--red)':''}">${bal<0?"-":""}฿${money(Math.abs(bal))}</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;margin-bottom:20px">
+        <div style="width:${spPct}%;max-width:100%;height:4px;background:linear-gradient(90deg,var(--purple),var(--red));border-radius:4px;transition:width .8s ease"></div>
+        <div style="flex:1;height:4px;background:#ffffff10;border-radius:4px"></div>
+      </div>
+      <div style="display:flex;gap:24px">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">↑ รายรับ</div>
+          <div style="font-size:18px;font-weight:700;color:var(--green)">฿${money(inc)}</div>
+        </div>
+        <div style="width:1px;background:#ffffff10"></div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">↓ รายจ่าย</div>
+          <div style="font-size:18px;font-weight:700;color:var(--red)">฿${money(exp)}</div>
+        </div>
+        <div style="width:1px;background:#ffffff10"></div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">💰 ออม</div>
+          <div style="font-size:18px;font-weight:700;color:var(--gold)">${inc>0?svPct.toFixed(0)+"%":"—"}</div>
+        </div>
       </div>
     </div>
   </div>
   <div style="padding:0 20px">`;
 
-  // ── OVERVIEW ──
-  if(activeTab==="overview"){
-    const byCat=byCategory(f);
-    html+=`<div style="display:flex;flex-direction:column;gap:16px">
-      <div class="card" style="padding:20px">
-        <div style="font-size:14px;font-weight:600;margin-bottom:16px;color:#8b7fc0">รายจ่ายตามหมวดหมู่</div>
-        ${byCat.length===0?`<div style="color:#4a4a6a;text-align:center;padding:20px 0;font-size:14px">ยังไม่มีรายจ่าย</div>`:
-        byCat.map(([cat,amt])=>{
-          const info=getCat(cat);const pct=exp>0?(amt/exp)*100:0;
-          return`<div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px"><span>${info.icon} ${info.label}</span><span style="color:#f43f5e;font-weight:600">฿${money(amt)}</span></div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#f43f5e,#fb923c)"></div></div>
-            <div style="font-size:11px;color:#4a4a6a;margin-top:3px;text-align:right">${pct.toFixed(1)}%</div>
-          </div>`}).join("")}
-      </div>
-      <div class="card" style="padding:20px">
-        <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#8b7fc0">สัดส่วนรายรับ vs รายจ่าย</div>
-        <div style="display:flex;height:12px;border-radius:8px;overflow:hidden">
-          ${inc+exp>0?`<div style="flex:${inc};background:#22c55e;border-radius:8px 0 0 8px"></div><div style="flex:${exp};background:#f43f5e;border-radius:0 8px 8px 0"></div>`:`<div style="flex:1;background:#2a2a38"></div>`}
+  // OVERVIEW
+  if(tab==="overview"){
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+
+      <!-- Bar Chart -->
+      <div class="glass" style="padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;letter-spacing:.5px">📊 รายรับ-รายจ่าย 6 เดือน</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:100px">
+          ${barData.map(d=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:80px">
+                <div style="flex:1;background:linear-gradient(180deg,var(--green),var(--green2));border-radius:4px 4px 0 0;height:${d.inc>0?Math.max((d.inc/maxBar)*80,4):0}px;transition:height .8s ease"></div>
+                <div style="flex:1;background:linear-gradient(180deg,var(--red),var(--red2));border-radius:4px 4px 0 0;height:${d.exp>0?Math.max((d.exp/maxBar)*80,4):0}px;transition:height .8s ease"></div>
+              </div>
+              <div style="font-size:9px;color:var(--text3);font-weight:600">${d.label}</div>
+            </div>`).join("")}
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#6b6b8a">
-          <span>🟢 รายรับ ${inc+exp>0?((inc/(inc+exp))*100).toFixed(0):0}%</span>
-          <span>🔴 รายจ่าย ${inc+exp>0?((exp/(inc+exp))*100).toFixed(0):0}%</span>
+        <div style="display:flex;gap:16px;margin-top:12px;justify-content:center">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:var(--green)"></div>รายรับ</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:var(--red)"></div>รายจ่าย</div>
         </div>
       </div>
-      <div class="card" style="padding:20px">
-        <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#8b7fc0">สถิติ</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          ${[["รายการทั้งหมด",f.length+" รายการ","#7c6aff"],
-             ["รายรับเฉลี่ย",f.filter(t=>t.type==="income").length>0?"฿"+money(inc/f.filter(t=>t.type==="income").length):"-","#22c55e"],
-             ["รายจ่ายเฉลี่ย",f.filter(t=>t.type==="expense").length>0?"฿"+money(exp/f.filter(t=>t.type==="expense").length):"-","#f43f5e"],
-             ["ออมได้",bal>0?"฿"+money(bal):"฿0.00","#f59e0b"]
-          ].map(([l,v,c])=>`<div style="background:#0f0f13;border-radius:12px;padding:14px 12px"><div style="font-size:12px;color:#5a5a7a;margin-bottom:6px">${l}</div><div style="font-size:15px;font-weight:700;color:${c}">${v}</div></div>`).join("")}
+
+      <!-- Donut + Categories -->
+      <div class="glass" style="padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;letter-spacing:.5px">🍩 รายจ่ายตามหมวดหมู่</div>
+        ${catArr.length===0?`<div style="text-align:center;padding:20px;color:var(--text3)">ยังไม่มีรายจ่าย</div>`:`
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
+          <div style="position:relative;flex-shrink:0">
+            ${donut(segments,110,16)}
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:11px;color:var(--text3)">รายจ่าย</div>
+              <div style="font-size:14px;font-weight:800;color:var(--red)">฿${money(exp)}</div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            ${catArr.slice(0,4).map(([cat,amt])=>{
+              const c=getCat(cat);const pct=exp>0?(amt/exp*100):0;
+              return`<div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                  <span style="color:var(--text2)">${c.icon} ${c.label}</span>
+                  <span style="font-weight:700;color:${c.color}">${pct.toFixed(0)}%</span>
+                </div>
+                <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c.color}"></div></div>
+              </div>`;
+            }).join("")}
+          </div>
         </div>
+        ${catArr.length>4?`<div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${catArr.slice(4).map(([cat,amt])=>{const c=getCat(cat);return`<div style="background:${c.color}15;border:1px solid ${c.color}40;border-radius:8px;padding:6px 10px;font-size:12px;color:${c.color}">${c.icon} ${c.label} · ฿${money(amt)}</div>`;}).join("")}
+        </div>`:""}`}
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[
+          ["รายการทั้งหมด",f.length+" รายการ","var(--purple)","📋"],
+          ["ออมได้",inc>0?"฿"+money(bal>0?bal:0):"—","var(--gold)","💰"],
+          ["รายจ่ายสูงสุด",catArr[0]?getCat(catArr[0][0]).icon+" ฿"+money(catArr[0][1]):"—","var(--red)","🔥"],
+          ["เฉลี่ย/วัน",exp>0?"฿"+money(exp/30):"-","var(--green)","📅"],
+        ].map(([l,v,c,ic])=>`
+          <div class="glass2" style="padding:16px">
+            <div style="font-size:18px;margin-bottom:6px">${ic}</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">${l}</div>
+            <div style="font-size:15px;font-weight:800;color:${c}">${v}</div>
+          </div>`).join("")}
       </div>
     </div>`;
   }
 
-  // ── HISTORY ──
-  else if(activeTab==="history"){
-    html+=`<div style="display:flex;flex-direction:column;gap:10px">`;
-    if(f.length===0){
-      html+=`<div style="text-align:center;padding:40px 0;color:#4a4a6a"><div style="font-size:40px;margin-bottom:12px">📭</div><div>ยังไม่มีรายการในเดือนนี้</div></div>`;
-    }else{
-      f.forEach(t=>{
-        const info=getCat(t.category);
-        html+=`<div class="txn-row">
-          <div class="icon-circle" style="background:${t.type==="income"?"#0d2e1a":"#2a1020"}">${info.icon}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;font-size:14px;margin-bottom:2px">${info.label}</div>
-            <div style="font-size:12px;color:#5a5a7a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note||"—"} · ${fmtDate(t.date)}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:16px;font-weight:700;color:${t.type==="income"?"#22c55e":"#f43f5e"}">${t.type==="income"?"+":"-"}฿${money(t.amount)}</div>
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
-              <button onclick="startEdit(${t.id})" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px">✏️</button>
-              <button onclick="deleteTxn(${t.id})" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px">🗑️</button>
+  // HISTORY
+  else if(tab==="history"){
+    h+=`<div style="margin-top:14px">`;
+    if(!f.length){
+      h+=`<div style="text-align:center;padding:60px 0;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">📭</div><div style="font-size:15px">ยังไม่มีรายการ</div></div>`;
+    } else {
+      // Group by date
+      const byDate={};
+      f.forEach(t=>{(byDate[t.date]=byDate[t.date]||[]).push(t);});
+      Object.entries(byDate).forEach(([date,items])=>{
+        h+=`<div style="font-size:12px;color:var(--text3);font-weight:700;margin:16px 0 8px;letter-spacing:1px">${fmtDate(date)}</div>`;
+        items.forEach(t=>{
+          const c=getCat(t.category);
+          h+=`<div class="txn">
+            <div class="avatar" style="background:${c.color}20">${c.icon}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:14px;margin-bottom:2px">${c.label}</div>
+              <div style="font-size:12px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note||"—"}</div>
             </div>
-          </div>
-        </div>`;
+            <div style="text-align:right">
+              <div style="font-size:16px;font-weight:800;color:${t.type==="income"?"var(--green)":"var(--red)"}">${t.type==="income"?"+":"-"}฿${money(t.amount)}</div>
+              <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px">
+                <button data-edit="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px;color:var(--purple)">✏️</button>
+                <button data-del="${t.id}" style="background:none;border:none;cursor:pointer;font-size:15px;padding:2px;color:var(--red)">🗑️</button>
+              </div>
+            </div>
+          </div>`;
+        });
       });
     }
-    html+=`</div>`;
+    h+=`</div>`;
   }
 
-  // ── SLIP SCANNER ──
-  else if(activeTab==="slip"){
-    html+=`<div style="display:flex;flex-direction:column;gap:16px">
-      <div style="font-size:14px;color:#6b6b8a;text-align:center">ถ่ายรูปหรืออัปโหลดสลิปโอนเงิน<br>AI จะอ่านข้อมูลให้อัตโนมัติ</div>`;
-
-    if(slipState.status==="idle"){
-      html+=`
-        <input type="file" id="slip-file-input" accept="image/*" style="display:none" onchange="onSlipFile(this)"/>
-        <div style="display:flex;gap:10px">
-          <button onclick="document.getElementById('slip-file-input').removeAttribute('capture');document.getElementById('slip-file-input').click()" style="flex:1;background:#1e1e2a;border:2px dashed #3a2a6a;border-radius:16px;color:#e8e6f0;cursor:pointer;font-family:inherit;padding:22px 10px;text-align:center">
-            <div style="font-size:36px;margin-bottom:8px">🖼️</div>
-            <div style="font-weight:600;font-size:14px">เลือกจากคลัง</div>
-          </button>
-          <button onclick="document.getElementById('slip-file-input').setAttribute('capture','environment');document.getElementById('slip-file-input').click()" style="flex:1;background:#1e1e2a;border:2px dashed #3a2a6a;border-radius:16px;color:#e8e6f0;cursor:pointer;font-family:inherit;padding:22px 10px;text-align:center">
-            <div style="font-size:36px;margin-bottom:8px">📷</div>
-            <div style="font-weight:600;font-size:14px">ถ่ายรูป</div>
-          </button>
-        </div>
-        <div style="font-size:12px;color:#4a4a6a;text-align:center">รองรับ KBANK · SCB · KTB · PromptPay</div>`;
+  // SLIP
+  else if(tab==="slip"){
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+      <input type="file" id="fInput" accept="image/*" style="display:none"/>`;
+    if(slip.st==="idle"){
+      h+=`<div style="text-align:center;padding:12px 0;color:var(--text3);font-size:14px">ถ่ายรูปหรือเลือกสลิปโอนเงิน<br>AI จะอ่านข้อมูลให้อัตโนมัติ</div>
+      <div style="display:flex;gap:12px">
+        <button id="bGallery" style="flex:1;background:linear-gradient(135deg,#1a1040,#0d0d24);border:1px solid var(--border2);border-radius:20px;color:var(--text);cursor:pointer;font-family:inherit;padding:28px 10px;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">🖼️</div>
+          <div style="font-size:14px;font-weight:700">คลังภาพ</div>
+        </button>
+        <button id="bCamera" style="flex:1;background:linear-gradient(135deg,#1a1040,#0d0d24);border:1px solid var(--border2);border-radius:20px;color:var(--text);cursor:pointer;font-family:inherit;padding:28px 10px;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">📷</div>
+          <div style="font-size:14px;font-weight:700">ถ่ายรูป</div>
+        </button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center">รองรับ KBANK · SCB · KTB · BBL · PromptPay</div>`;
     } else {
-      html+=`<div style="position:relative">
-        <img src="${slipState.imgSrc}" class="slip-preview"/>
-        <button onclick="resetSlip()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:none;border-radius:50%;color:#fff;cursor:pointer;font-size:18px;width:32px;height:32px">✕</button>
+      h+=`<div style="position:relative"><img src="${slip.img}" style="width:100%;border-radius:16px;max-height:240px;object-fit:contain;background:#ffffff05"/>
+        <button id="bReset" style="position:absolute;top:10px;right:10px;background:#000000b0;border:none;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;width:32px;height:32px">✕</button>
       </div>`;
-
-      if(slipState.status==="loading"){
-        html+=`<div style="text-align:center;padding:20px"><div class="spinner"></div><div style="margin-top:12px;font-size:14px;color:#8b7fc0">AI กำลังอ่านสลิป...</div></div>`;
-      } else if(slipState.status==="error"){
-        html+=`<div class="ai-result err">
-          <div style="font-size:20px;margin-bottom:8px">❌</div>
-          <div style="font-size:14px;color:#f87171">${slipState.error}</div>
-          <button onclick="resetSlip()" style="background:none;border:1px solid #f43f5e44;border-radius:8px;color:#f87171;cursor:pointer;font-family:inherit;font-size:13px;margin-top:12px;padding:8px 16px">ลองใหม่</button>
+      if(slip.st==="loading"){
+        h+=`<div style="text-align:center;padding:24px"><div class="spin"></div><div style="margin-top:12px;font-size:14px;color:var(--purple);font-weight:600">AI กำลังอ่านสลิป...</div></div>`;
+      } else if(slip.st==="error"){
+        h+=`<div style="background:#ff4d6d10;border:1px solid #ff4d6d30;border-radius:16px;padding:18px">
+          <div style="font-size:13px;color:var(--red);margin-bottom:12px">${slip.err}</div>
+          <button id="bReset2" class="btn btn-ghost">ลองใหม่</button>
         </div>`;
-      } else if(slipState.status==="done"&&slipState.result){
-        const r=slipState.result;
-        html+=`<div class="ai-result">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-            <div style="font-size:20px">✅</div>
-            <div>
-              <div style="font-weight:700;font-size:15px;color:#22c55e">อ่านสลิปสำเร็จ</div>
-              <div style="font-size:12px;color:#4a6a4a">${r.bank||""} · ความมั่นใจ ${r.confidence||"?"}%</div>
+      } else if(slip.st==="done"&&slip.result){
+        const r=slip.result;
+        h+=`<div style="background:linear-gradient(135deg,#00d4aa12,#4facfe08);border:1px solid #00d4aa30;border-radius:18px;padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <div style="background:#00d4aa20;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px">✅</div>
+            <div><div style="font-weight:800;color:var(--green);font-size:16px">อ่านสลิปสำเร็จ</div>
+            <div style="font-size:12px;color:var(--text3)">${r.bank||""} · ความมั่นใจ ${r.confidence||"?"}%</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px">
+              <span style="color:var(--text3);font-size:13px">💰 ยอดเงิน</span>
+              <span style="font-weight:800;color:var(--green);font-size:18px">฿${money(r.amount||0)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px">
+              <span style="color:var(--text3);font-size:13px">📅 วันที่</span>
+              <span style="font-weight:600;font-size:14px">${r.date||"-"}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff06;border-radius:10px;padding:12px 14px;gap:12px">
+              <span style="color:var(--text3);font-size:13px;flex-shrink:0">👤 ผู้รับ</span>
+              <span style="font-weight:600;font-size:14px;text-align:right">${r.note||"-"}</span>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
-            <div style="display:flex;justify-content:space-between"><span style="color:#6b6b8a">ยอดเงิน</span><span style="font-weight:700;color:#22c55e">฿${money(r.amount||0)}</span></div>
-            <div style="display:flex;justify-content:space-between"><span style="color:#6b6b8a">วันที่</span><span>${r.date||"-"}</span></div>
-            <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6b6b8a;flex-shrink:0">รายละเอียด</span><span style="text-align:right">${r.note||"-"}</span></div>
-          </div>
-          <button class="confirm-btn" onclick="confirmSlip()">✅ ยืนยัน — ไปกรอกรายการ</button>
+          <button id="bConfirm" style="background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:14px;color:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;padding:14px;width:100%">✅ ยืนยัน → ไปกรอกรายการ</button>
         </div>`;
       }
     }
-    html+=`</div>`;
+    h+=`</div>`;
   }
 
-  // ── ADD ──
-  else if(activeTab==="add"){
-    html+=`<div class="card" style="padding:20px;display:flex;flex-direction:column;gap:16px">
-      ${slipState.status==="done"&&slipState.result?`<div style="background:#0d1a10;border:1px solid #22c55e33;border-radius:10px;padding:10px 14px;font-size:13px;color:#4ade80">📸 ข้อมูลจากสลิป — ตรวจสอบและแก้ไขได้</div>`:""}
+  // ADD
+  else if(tab==="add"){
+    h+=`<div class="glass" style="padding:20px;margin-top:14px;display:flex;flex-direction:column;gap:16px">
+      ${slip.st==="done"?`<div style="background:#00d4aa12;border:1px solid #00d4aa30;border-radius:10px;padding:12px;font-size:13px;color:var(--green);font-weight:600">📸 ข้อมูลจากสลิป — ตรวจสอบแล้วกดเพิ่ม</div>`:""}
       <div>
-        <div style="font-size:13px;color:#6b6b8a;margin-bottom:8px">ประเภท</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700;letter-spacing:.5px">ประเภท</div>
         <div style="display:flex;gap:8px">
-          ${["income","expense"].map(type=>`
-            <button class="tab-btn type-btn" onclick="setFF('type','${type}');setFF('category','${type==="income"?"salary":"food"}');render()"
-              style="flex:1;color:${form.type===type?"#fff":"#5a5a7a"};background:${form.type===type?(type==="income"?"#0d2e1a":"#2a1020"):"#1a1a24"};border:1.5px solid ${form.type===type?(type==="income"?"#22c55e":"#f43f5e"):"#2a2a38"}">
-              ${type==="income"?"💰 รายรับ":"💸 รายจ่าย"}
-            </button>`).join("")}
+          <button data-type="income" class="btn" style="flex:1;border-radius:14px;font-size:14px;font-weight:700;padding:12px;color:${form.type==="income"?"#fff":"var(--text3)"};background:${form.type==="income"?"linear-gradient(135deg,var(--green),var(--green2))":"#ffffff08"};border:1.5px solid ${form.type==="income"?"var(--green)":"var(--border)"}">↑ รายรับ</button>
+          <button data-type="expense" class="btn" style="flex:1;border-radius:14px;font-size:14px;font-weight:700;padding:12px;color:${form.type==="expense"?"#fff":"var(--text3)"};background:${form.type==="expense"?"linear-gradient(135deg,var(--red),var(--red2))":"#ffffff08"};border:1.5px solid ${form.type==="expense"?"var(--red)":"var(--border)"}">↓ รายจ่าย</button>
         </div>
       </div>
       <div>
-        <div style="font-size:13px;color:#6b6b8a;margin-bottom:8px">หมวดหมู่</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700;letter-spacing:.5px">หมวดหมู่</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          ${cats.map(c=>`<button class="cat-pill ${form.category===c.id?(form.type==="income"?"ai":"ae"):""}" onclick="setFF('category','${c.id}');render()">${c.icon} ${c.label}</button>`).join("")}
+          ${cats.map(c=>`<button class="pill ${form.category===c.id?(form.type==="income"?"pi":"pe"):""}" data-cat="${c.id}">${c.icon} ${c.label}</button>`).join("")}
         </div>
       </div>
       <div>
-        <div style="font-size:13px;color:#6b6b8a;margin-bottom:8px">จำนวนเงิน (บาท)</div>
-        <input class="inp" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" value="${form.amount}" oninput="setFF('amount',this.value)"/>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">จำนวนเงิน (บาท)</div>
+        <input class="inp" id="iAmt" type="number" inputmode="decimal" placeholder="0.00" value="${form.amount}" style="font-size:24px;font-weight:800"/>
       </div>
       <div>
-        <div style="font-size:13px;color:#6b6b8a;margin-bottom:8px">หมายเหตุ</div>
-        <input class="inp" type="text" placeholder="บันทึกรายการ..." maxlength="80" value="${form.note}" oninput="setFF('note',this.value)"/>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">หมายเหตุ</div>
+        <input class="inp" id="iNote" type="text" placeholder="บันทึกรายการ..." maxlength="80" value="${form.note}"/>
       </div>
       <div>
-        <div style="font-size:13px;color:#6b6b8a;margin-bottom:8px">วันที่</div>
-        <input class="inp" type="date" value="${form.date}" onchange="setFF('date',this.value)"/>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.5px">วันที่</div>
+        <input class="inp" id="iDate" type="date" value="${form.date}"/>
       </div>
-      <button class="btn-primary" onclick="submitForm()">${editId!==null?"💾 บันทึกการแก้ไข":"✅ เพิ่มรายการ"}</button>
-      ${editId!==null?`<button onclick="cancelEdit()" style="background:none;border:1px solid #2a2a38;border-radius:12px;color:#6b6b8a;cursor:pointer;font-family:inherit;font-size:14px;padding:10px">ยกเลิก</button>`:""}
+      <button id="bSubmit" class="btn btn-primary">${editId!==null?"💾 บันทึกการแก้ไข":"✦ เพิ่มรายการ"}</button>
+      ${editId!==null?`<button id="bCancelEdit" class="btn btn-ghost">ยกเลิก</button>`:""}
     </div>`;
   }
 
-  html+=`</div>`;
-  document.getElementById("app").innerHTML=html;
+  // SETTINGS
+  else if(tab==="settings"){
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+      <div class="glass" style="padding:20px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:16px">⚙️ ตั้งค่า</div>
+        <div style="background:#00d4aa12;border:1px solid #00d4aa30;border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:13px;color:var(--green);font-weight:700">✅ ระบบพร้อมใช้งาน</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">เชื่อมต่อ AI สำหรับสแกนสลิปแล้ว</div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.8">
+          <div>📸 สแกนสลิป → อ่านข้อมูลอัตโนมัติ</div>
+          <div>✦ เพิ่มรายการ → บันทึกด้วยตนเอง</div>
+          <div>📊 สรุป → ดูกราฟและสถิติ</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:20px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2)">ข้อมูล</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+          <span style="color:var(--text3)">รายการทั้งหมด</span>
+          <span style="font-weight:700">${txns.length} รายการ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text3)">เดือนนี้</span>
+          <span style="font-weight:700">${f.length} รายการ</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  h+=`</div>`;
+  document.getElementById("app").innerHTML=h;
+
+  // Events
+  document.getElementById("bPrev")?.addEventListener("click",()=>changeMonth(-1));
+  document.getElementById("bNext")?.addEventListener("click",()=>changeMonth(1));
+  document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>startEdit(+b.dataset.edit)));
+  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>delTxn(+b.dataset.del)));
+  const fi=document.getElementById("fInput");
+  fi?.addEventListener("change",onFile);
+  document.getElementById("bGallery")?.addEventListener("click",()=>{fi.removeAttribute("capture");fi.click();});
+  document.getElementById("bCamera")?.addEventListener("click",()=>{fi.setAttribute("capture","environment");fi.click();});
+  document.getElementById("bReset")?.addEventListener("click",resetSlip);
+  document.getElementById("bReset2")?.addEventListener("click",resetSlip);
+  document.getElementById("bConfirm")?.addEventListener("click",()=>{tab="add";render();});
+  document.querySelectorAll("[data-type]").forEach(b=>b.addEventListener("click",()=>{form.type=b.dataset.type;form.category=form.type==="income"?"salary":"food";render();}));
+  document.querySelectorAll("[data-cat]").forEach(b=>b.addEventListener("click",()=>{form.category=b.dataset.cat;render();}));
+  document.getElementById("iAmt")?.addEventListener("input",e=>form.amount=e.target.value);
+  document.getElementById("iNote")?.addEventListener("input",e=>form.note=e.target.value);
+  document.getElementById("iDate")?.addEventListener("change",e=>form.date=e.target.value);
+  document.getElementById("bSubmit")?.addEventListener("click",submit);
+  document.getElementById("bCancelEdit")?.addEventListener("click",cancelEdit);
 }
 
-function setFF(k,v){form[k]=v}
-
-// ── INIT ────────────────────────────────────────────────
+document.querySelectorAll(".ni").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;render();}));
 txns=load();render();
 
-// ── SERVICE WORKER ───────────────────────────────────────
 if("serviceWorker" in navigator){
-  const sw=`const C="exp-v2";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
-  const swb=new Blob([sw],{type:"application/javascript"});
-  navigator.serviceWorker.register(URL.createObjectURL(swb));
+  const sw=`const C="ft2";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})));
 }
 </script>
 </body>
